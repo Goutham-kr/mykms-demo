@@ -1,0 +1,8 @@
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfvars
+*.tfvars
+.terraform/*
+terraform-provider-aws_v1.11.0_x4.exe
+terraform-provider-template_v2.1.2_x4.exe
+
