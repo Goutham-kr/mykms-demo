@@ -1,7 +1,4 @@
-aws_access_key = "AKIAJUAGP7TGIWBD7SWQ"
-aws_secret_key = "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"
-region = "us-east-1"
-account_id = "775537551370"
+account_id = "${env.AWS_ACCOUNT_ID}"
 key_name = "mykeygou"
 first = "super1"
 second = "star1"
