@@ -63,7 +63,7 @@ pipeline {
               input "Create/update Terraform stack for KMS ${params.teststage} env in aws?" 
 
                 sh """
-                  terraform apply -input=false -auto-approve ${plan} --var-file='/var/lib/jenkins/secret.tfvars'
+                  terraform apply -input=false --auto-approve ${plan}
                 """
             }
           }
@@ -76,7 +76,7 @@ pipeline {
           steps {
                 sh """
                    terraform init -input=false
-                   terraform show
+                   terraform show 
                    """            
             script {
               input "Destroy Terraform stack for KMS ${params.teststage} env in aws?" 
