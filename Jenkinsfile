@@ -6,11 +6,12 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = "${env.AWS_SECRET_ID}"
         AWS_DEFAULT_REGION = "${env.AWS_REGION_ID}"
         AWS_ACCOUNT_ID = "${env.AWS_ACCOUNT_ID}"
+        TF_IN_AUTOMATION      = '1'
     }
 
     parameters {
         choice(name: 'action', choices: 'plan\napply\ndestroy', description: 'Create/update or destroy the AWS Infra.')
-        string(name: 'environment', defaultValue : 'dev', description: "KMS Demo.")
+        string(name: 'devstage', defaultValue : 'dev', description: "KMS Demo.")
     }
 
     options {
@@ -23,8 +24,8 @@ pipeline {
         stage('Setup') {
           steps {
             script {
-              currentBuild.displayName = "#" + env.BUILD_NUMBER + " " + params.action + "-" + params.environment
-              plan = params.environment + '.plan'
+              currentBuild.displayName = "#" + env.BUILD_NUMBER + " " + params.action + "-" + params.devstage
+              plan = params.devstage + '.plan'
             }
           }
         }
@@ -42,7 +43,8 @@ pipeline {
           }
           steps {
                 sh """
-                   terraform init
+                   terraform init -input=false
+                   terraform workspace select ${environment}
                    terraform plan -input=false -out ${plan} --var-file=environments/${environment}.tfvars
                    terraform show $plan
                    """
@@ -55,11 +57,11 @@ pipeline {
           }
           steps {
                 sh """
-                   terraform init
+                   terraform init -input=false
                    terraform plan -input=false -out ${plan}
                    """
             script {
-              input "Create/update Terraform stack for KMS ${params.environment} env in aws?" 
+              input "Create/update Terraform stack for KMS ${params.devstage} env in aws?" 
 
                 sh """
                   terraform apply -input=false -auto-approve ${plan}
