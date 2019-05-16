@@ -5,11 +5,12 @@ pipeline {
         AWS_ACCESS_KEY_ID = "${env.AWS_ACCESS_ID}"
         AWS_SECRET_ACCESS_KEY = "${env.AWS_SECRET_ID}"
         AWS_DEFAULT_REGION = "${env.AWS_REGION_ID}"
+        AWS_ACCOUNT_ID = "${env.AWS_ACCOUNT_ID}"
     }
 
     parameters {
         choice(name: 'action', choices: 'plan\napply\ndestroy', description: 'Create/update or destroy the AWS Infra.')
-        string(name: 'environment', defaultValue : 'nprod', description: "KMS Demo.")
+        string(name: 'environment', defaultValue : 'test', description: "KMS Demo.")
     }
 
     options {
@@ -49,7 +50,7 @@ pipeline {
           steps {
                 sh """
                    terraform init
-                   terraform plan -input=false -out ${plan} --var-file=/var/lib/jenkins/terraform.tfvars
+                   terraform plan -input=false -out ${plan} 
                    terraform show $plan
                    """
             }
