@@ -82,7 +82,7 @@ pipeline {
               input "Destroy Terraform stack for KMS ${params.teststage} env in aws?" 
 
                 sh """
-                  terraform destroy --auto-approve
+                  terraform destroy --auto-approve --var-file='/var/lib/jenkins/secret.tfvars'
                 """
             }
           }
