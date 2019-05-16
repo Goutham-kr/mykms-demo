@@ -20,7 +20,7 @@ pipeline {
 
         stage('Authenticate AWS') {
             steps {
-                sh "python3 /usr/local/bin/gaws.py MY_SELF_GOUTHAM --profile nonprod --account 775537551370 --region us-east-1 --passwd ${JENKINS_USER_PASS}"
+                sh "python3 /usr/bin/gaws.py MY_SELF_GOUTHAM --profile nonprod --account 775537551370 --region us-east-1 --passwd ${JENKINS_USER_PASS}"
             }
         }
 
@@ -72,7 +72,7 @@ pipeline {
           }
         }
 
-        stage('TF Destroy') {
+        /* stage('TF Destroy') {
           when {
             expression { params.action == 'destroy' }
           }
@@ -89,8 +89,9 @@ pipeline {
                 """
             }
           }
-       }
+       } */
     }    
+    
     post {
         always {
             echo 'Clean up workspace'
