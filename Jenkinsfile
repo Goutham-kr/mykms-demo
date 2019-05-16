@@ -72,25 +72,26 @@ pipeline {
           }
         }
 
-        stage('TF Destroy') {
+        /* stage('TF Destroy') {
           when {
             expression { params.action == 'destroy' }
           }
           steps {
                 sh """
-                   terraform init
-                   terraform show
+                 terraform init
+                 terraform show
                    """            
             script {
               input "Destroy Terraform stack for KMS ${params.environment} env in aws?" 
 
-                sh """
+               /sh """
                   terraform destroy -auto-approve
                 """
-            }
-          }
-       }
-    }    
+           }
+         }
+       } */
+    } 
+        
     post {
         always {
             echo 'Clean up workspace'
