@@ -44,7 +44,7 @@ pipeline {
           steps {
                 sh """
                    terraform init -input=false
-                   terraform workspace select ${environment}
+                   terraform workspace select environments/${environment}
                    terraform plan -input=false -out ${plan} 
                    terraform show $plan
                    """
