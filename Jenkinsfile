@@ -56,37 +56,37 @@ pipeline {
           }
           steps {
                 sh """
-                   terraform init
-                   terraform plan -input=false -out ${plan}
+                   terraform init -input=false
+                   terraform plan -input=false -out ${plan} --var-file='/var/lib/jenkins/secret.tfvars'
                    """
             script {
               input "Create/update Terraform stack for KMS ${params.teststage} env in aws?" 
 
                 sh """
-                  terraform apply -input=false -auto-approve ${plan}
+                  terraform apply -input=false -auto-approve ${plan} --var-file='/var/lib/jenkins/secret.tfvars'
                 """
             }
           }
         }
 
-        /* stage('TF Destroy') {
+        stage('TF Destroy') {
           when {
             expression { params.action == 'destroy' }
           }
           steps {
                 sh """
-                   terraform init
+                   terraform init -input=false
                    terraform show
                    """            
             script {
-              input "Destroy Terraform stack for KMS ${params.environment} env in aws?" 
+              input "Destroy Terraform stack for KMS ${params.teststage} env in aws?" 
 
                 sh """
-                  terraform destroy -auto-approve
+                  terraform destroy --auto-approve
                 """
             }
           }
-       } */
+       }
     }    
     
     post {
