@@ -2,11 +2,10 @@ pipeline {
     agent any
 
     environment {
-        AWS_ACCESS_KEY_ID = "${env.AWS_ACCESS_ID}"
-        AWS_SECRET_ACCESS_KEY = "${env.AWS_SECRET_ID}"
-        AWS_DEFAULT_REGION = "${env.AWS_REGION_ID}"
-        AWS_ACCOUNT_ID = "${env.AWS_ACCOUNT_ID}"
-        TF_IN_AUTOMATION      = '1'
+        AWS_ACCESS_KEY_ID       = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY   = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_DEFAULT_REGION      = credentials('AWS_DEFAULT_REGION')
+        TF_IN_AUTOMATION        = '1'
     }
 
     parameters {
@@ -25,7 +24,7 @@ pipeline {
           steps {
             script {
               currentBuild.displayName = "#" + env.BUILD_NUMBER + " " + params.action + "-" + params.devstage
-              plan = params.devstage + '.plan'
+              plan = params.devrstage + '.plan'
             }
           }
         }
@@ -44,8 +43,8 @@ pipeline {
           steps {
                 sh """
                    terraform init -input=false
-                   terraform workspace select ${environment}
-                   terraform plan -input=false -out ${plan} --var-file=environments/${environment}.tfvars
+                   terraform workspace select default
+                   terraform plan -input=false -out ${plan} --var-file='/var/lib/jenkins/secret3.tfvars'
                    terraform show $plan
                    """
             }
@@ -58,37 +57,38 @@ pipeline {
           steps {
                 sh """
                    terraform init -input=false
-                   terraform plan -input=false -out ${plan}
+                   terraform plan -input=false -out ${plan} --var-file='/var/lib/jenkins/secret3.tfvars'
                    """
             script {
               input "Create/update Terraform stack for KMS ${params.devstage} env in aws?" 
 
                 sh """
-                  terraform apply -input=false -auto-approve ${plan}
+                  terraform apply -input=false --auto-approve ${plan}
                 """
             }
           }
         }
 
-        /* stage('TF Destroy') {
+        stage('TF Destroy') {
           when {
             expression { params.action == 'destroy' }
           }
           steps {
                 sh """
-                   terraform init
-                   terraform show
+                   terraform init -input=false
+                   terraform show 
                    """            
             script {
-              input "Destroy Terraform stack for KMS ${params.environment} env in aws?" 
+              input "Destroy Terraform stack for KMS ${params.devstage} env in aws?" 
 
                 sh """
-                  terraform destroy -auto-approve
+                  terraform destroy --auto-approve --var-file='/var/lib/jenkins/secret3.tfvars'
                 """
             }
           }
-       } */
+       }
     }    
+    
     post {
         always {
             echo 'Clean up workspace'
