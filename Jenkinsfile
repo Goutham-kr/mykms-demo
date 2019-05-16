@@ -1,46 +1,42 @@
 pipeline {
+    agent any
 
-  agent any
-
-  environment {
-    SVC_ACCOUNT_KEY = credentials('terraform-auth')
-  }
-
-  stages {
-
-    stage('Checkout') {
-      steps {
-        checkout scm
-        sh 'mkdir -p creds' 
-        sh 'echo $SVC_ACCOUNT_KEY | base64 -d > ./creds/serviceaccount.json'
-      }
+    environment {
+        AWS_ACCESS_KEY_ID     = "${env.AWS_ACCESS_KEY_ID}"
+		AWS_SECRET_ACCESS_KEY = "${env.AWS_SECRET_ACCESS_KEY}"
+		AWS_DEFAULT_REGION	  = "${env.AWS_DEFAULT_REGION}"
     }
 
-    stage('TF Plan') {
-      steps {
-        container('terraform') {
-          sh 'terraform init'
-          sh 'terraform plan -out myplan'
+    stages {
+        stage('Plan') {
+            steps {
+                sh 'terraform init -input=false'
+                sh 'terraform workspace select ${environment}'
+                sh "terraform plan -input=false -out tfplan -var 'version=${version}' --var-file=environments/${environment}.tfvars"
+                sh 'terraform show -no-color tfplan > tfplan.txt'
+            }
         }
-      }      
-    }
 
-    stage('Approval') {
-      steps {
-        script {
-          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+        stage('Approval') {
+            steps {
+                script {
+                    def plan = readFile 'tfplan.txt'
+                    input message: "Do you want to apply the plan?",
+                        parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
+                }
+            }
         }
-      }
-    }
 
-    stage('TF Apply') {
-      steps {
-        container('terraform') {
-          sh 'terraform apply -input=false myplan'
+        stage('Apply') {
+            steps {
+                sh "terraform apply -input=false tfplan"
+            }
         }
-      }
     }
 
-  } 
-
+    post {
+        always {
+            archiveArtifacts artifacts: 'tfplan.txt'
+        }
+    }
 }
