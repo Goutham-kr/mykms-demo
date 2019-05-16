@@ -2,7 +2,9 @@ pipeline {
     agent any
 
     environment {
-        JENKINS_USER_PASS = credentials("jenkinsuser")
+        AWS_ACCESS_KEY_ID = "${env.AWS_ACCESS_ID}"
+        AWS_SECRET_ACCESS_KEY = "${env.AWS_SECRET_ID}"
+        AWS_DEFAULT_REGION = "${env.AWS_REGION_ID}"
     }
 
     parameters {
