@@ -6,11 +6,12 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = "${env.AWS_SECRET_ID}"
         AWS_DEFAULT_REGION = "${env.AWS_REGION_ID}"
         AWS_ACCOUNT_ID = "${env.AWS_ACCOUNT_ID}"
+        TF_IN_AUTOMATION = '1'
     }
 
     parameters {
         choice(name: 'action', choices: 'plan\napply\ndestroy', description: 'Create/update or destroy the AWS Infra.')
-        string(name: 'environment', defaultValue : 'master', description: "KMS Demo.")
+        string(name: 'masterstage', defaultValue : 'master', description: "KMS Demo.")
     }
 
     options {
@@ -24,8 +25,8 @@ pipeline {
         stage('Setup') {
           steps {
             script {
-              currentBuild.displayName = "#" + env.BUILD_NUMBER + " " + params.action + "-" + params.environment
-              plan = params.environment + '.plan'
+              currentBuild.displayName = "#" + env.BUILD_NUMBER + " " + params.action + "-" + params.masterstage
+              plan = params.masterstage + '.plan'
             }
           }
         }
@@ -42,11 +43,12 @@ pipeline {
             expression { params.action == 'plan' }
           }
           steps {
-                sh """
-                   terraform init
+                sh """"
+                   terraform init -input=false
+                   terraform workspace select ${environment}
                    terraform plan -input=false -out ${plan} --var-file=environments/${environment}.tfvars
                    terraform show $plan
-                   """
+                   """"
             }
         }
 
