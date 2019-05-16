@@ -13,7 +13,7 @@ output "account_id" {
 terraform {
  backend "s3" {
  encrypt = true
- bucket = "krgbhat"
+ bucket = "goutest"
  region = "us-east-1"
  key = "terraform.tfstate"
  profile = "nonprod"
