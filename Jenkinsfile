@@ -1,35 +1,46 @@
 pipeline {
-    agent any
 
-    environment {
-        AWS_ACCESS_KEY_ID     = "${env.AWS_ACCESS_KEY_ID}"
-		AWS_SECRET_ACCESS_KEY = "${env.AWS_SECRET_ACCESS_KEY}"
-		AWS_DEFAULT_REGION	  = "${env.AWS_DEFAULT_REGION}"
+  agent any
+
+  environment {
+    SVC_ACCOUNT_KEY = credentials('terraform-auth')
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        checkout scm
+        sh 'mkdir -p creds' 
+        sh 'echo $SVC_ACCOUNT_KEY | base64 -d > ./creds/serviceaccount.json'
+      }
     }
 
-    stages {
-        stage('Plan') {
-            steps {
-                script {
-                    currentBuild.displayName = "${version}"
-                }
-                sh 'terraform init -input=false'
-                sh 'terraform workspace select ${environment}'
-                sh "terraform plan -input=false -out tfplan -var 'version=${version}' --var-file=environments/${environment}.tfvars"
-                sh 'terraform show -no-color tfplan > tfplan.txt'
-            }
+    stage('TF Plan') {
+      steps {
+        container('terraform') {
+          sh 'terraform init'
+          sh 'terraform plan -out myplan'
         }
-
-        stage('Apply') {
-            steps {
-                sh "terraform apply -input=false tfplan"
-            }
-        }
+      }      
     }
 
-    post {
-        always {
-            archiveArtifacts artifacts: 'tfplan.txt'
+    stage('Approval') {
+      steps {
+        script {
+          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
         }
+      }
     }
+
+    stage('TF Apply') {
+      steps {
+        container('terraform') {
+          sh 'terraform apply -input=false myplan'
+        }
+      }
+    }
+
+  } 
+
 }
