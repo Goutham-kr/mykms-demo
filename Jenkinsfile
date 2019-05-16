@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     environment {
-        AWS_ACCESS_KEY_ID = "${env.AWS_ACCESS_ID}"
-        AWS_SECRET_ACCESS_KEY = "${env.AWS_SECRET_ID}"
-        AWS_DEFAULT_REGION = "${env.AWS_REGION_ID}"
-        AWS_ACCOUNT_ID = "${env.AWS_ACCOUNT_ID}"
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = "credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_DEFAULT_REGION = credentials('AWS_DEFAULT_REGION')
         TF_IN_AUTOMATION = '1'
     }
 
@@ -42,10 +41,13 @@ pipeline {
             expression { params.action == 'plan' }
           }
           steps {
+              script {
+                    currentBuild.displayName = "${version}"
+                }
                 sh """
                    terraform init -input=false
                    terraform workspace select default
-                   terraform plan -input=false -out ${plan} 
+                   terraform plan -input=false -out ${plan} 'version=${version}' --var-file=environments/${environment}.tfvars
                    terraform show $plan
                    """
             }
