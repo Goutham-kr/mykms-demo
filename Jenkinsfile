@@ -5,7 +5,6 @@ pipeline {
         AWS_ACCESS_KEY_ID     = "${env.AWS_ACCESS_KEY_ID}"
 		AWS_SECRET_ACCESS_KEY = "${env.AWS_SECRET_ACCESS_KEY}"
 		AWS_DEFAULT_REGION	  = "${env.AWS_DEFAULT_REGION}"
-        TF_IN_AUTOMATION      = '1'
     }
 
     stages {
@@ -18,22 +17,6 @@ pipeline {
                 sh 'terraform workspace select ${environment}'
                 sh "terraform plan -input=false -out tfplan -var 'version=${version}' --var-file=environments/${environment}.tfvars"
                 sh 'terraform show -no-color tfplan > tfplan.txt'
-            }
-        }
-
-        stage('Approval') {
-            when {
-                not {
-                    equals expected: true, actual: params.autoApprove
-                }
-            }
-
-            steps {
-                script {
-                    def plan = readFile 'tfplan.txt'
-                    input message: "Do you want to apply the plan?",
-                        parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
-                }
             }
         }
 
