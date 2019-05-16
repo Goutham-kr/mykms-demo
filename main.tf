@@ -4,6 +4,12 @@ provider "aws" {
    region = "${var.region}"
 }
 
+data "aws_caller_identity" "current" {}
+
+output "account_id" {
+  value = "${data.aws_caller_identity.current.account_id}"
+}
+
 terraform {
  backend "s3" {
  encrypt = true
@@ -22,7 +28,7 @@ module "mykms" {
   attachment = "${var.attachment}"
   membership = "${var.membership}"
   key_name   = "${var.key_name}"
-  account_id = "${var.account_id}"
+  account_id = "${data.aws_caller_identity.current.account_id}"
   description             = "${var.description}"
   deletion_window_in_days = "${var.deletion_window_in_days}"
   is_enabled  = "${var.is_enabled}"
