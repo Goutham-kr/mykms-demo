@@ -44,7 +44,7 @@ pipeline {
                 sh """
                    terraform init -input=false
                    terraform workspace select default
-                   terraform plan -input=false -out ${plan} --var-file=environments/${environment}.tfvars
+                   terraform plan -input=false -out ${plan} --var-file=${environment}.tfvars
                    terraform show $plan
                    """
             }
