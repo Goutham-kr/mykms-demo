@@ -12,7 +12,7 @@ pipeline {
             steps {
                 sh 'terraform init -input=false'
                 sh 'terraform workspace select ${environment}'
-                sh "terraform plan -input=false -out tfplan -var 'version=${version}' --var-file=environments/${environment}.tfvars"
+                sh "terraform plan -input=false -out tfplan --var-file=environments/${environment}.tfvars"
                 sh 'terraform show -no-color tfplan > tfplan.txt'
             }
         }
