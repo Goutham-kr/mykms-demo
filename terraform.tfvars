@@ -1,3 +1,4 @@
+account_id = "${env.AWS_ACCOUNT_ID}"
 key_name = "mykeygou"
 first = "super1"
 second = "star1"
