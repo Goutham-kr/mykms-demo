@@ -58,7 +58,7 @@ pipeline {
           steps {
                 sh """
                    terraform init
-                   terraform plan -input=false -out ${plan} --var-file=environments/${environment}.tfvars
+                   terraform plan -input=false -out ${plan}
                    """
             script {
               input "Create/update Terraform stack for KMS ${params.teststage} env in aws?" 
