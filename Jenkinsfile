@@ -20,13 +20,6 @@ pipeline {
     }
 
     stages {
-
-        /* stage('Authenticate AWS') {
-            steps {
-                sh "python3 /usr/bin/gaws.py MY_SELF_GOUTHAM --profile nonprod --account 775537551370 --region us-east-1 --passwd ${JENKINS_USER_PASS}"
-            }
-        } */
-
         stage('Setup') {
           steps {
             script {
@@ -50,7 +43,7 @@ pipeline {
           steps {
                 sh """
                    terraform init
-                   terraform plan -input=false -out ${plan} 
+                   terraform plan -input=false -out ${plan} --var-file=environments/${environment}.tfvars
                    terraform show $plan
                    """
             }
