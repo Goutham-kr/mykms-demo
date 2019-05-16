@@ -44,7 +44,7 @@ pipeline {
           steps {
                 sh """
                    terraform init
-                   terraform plan -input=false -out ${plan}
+                   terraform plan -input=false -out ${plan} --var-file=environments/${environment}.tfvars
                    terraform show $plan
                    """
             }
