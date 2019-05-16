@@ -41,9 +41,6 @@ pipeline {
             expression { params.action == 'plan' }
           }
           steps {
-              script {
-                    currentBuild.displayName = "${version}"
-                }
                 sh """
                    terraform init -input=false
                    terraform workspace select default
