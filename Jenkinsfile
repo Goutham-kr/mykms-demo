@@ -44,7 +44,7 @@ pipeline {
                 sh """
                    terraform init -input=false
                    terraform workspace select dev
-                   terraform plan -input=false -out ${plan} --var-file='/var/lib/jenkins/secret3.tfvars'
+                   terraform plan -input=false -out ${plan} --var-file='/var/lib/jenkins/dev.tfvars'
                    terraform show $plan
                    """
             }
@@ -57,7 +57,7 @@ pipeline {
           steps {
                 sh """
                    terraform init -input=false
-                   terraform plan -input=false -out ${plan} --var-file='/var/lib/jenkins/secret3.tfvars'
+                   terraform plan -input=false -out ${plan} --var-file='/var/lib/jenkins/dev.tfvars'
                    """
             script {
               input "Create/update Terraform stack for KMS ${params.devstage} env in aws?" 
@@ -82,7 +82,7 @@ pipeline {
               input "Destroy Terraform stack for KMS ${params.devstage} env in aws?" 
 
                 sh """
-                  terraform destroy --auto-approve --var-file='/var/lib/jenkins/secret3.tfvars'
+                  terraform destroy --auto-approve --var-file='/var/lib/jenkins/dev.tfvars'
                 """
             }
           }
