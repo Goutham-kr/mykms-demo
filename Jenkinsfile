@@ -43,8 +43,8 @@ pipeline {
           steps {
                 sh """
                    terraform workspace new dev
-                   terraform init -input=false
                    terraform workspace select dev
+                   terraform init -input=false
                    terraform plan -input=false -out ${plan} --var-file='/var/lib/jenkins/secret3.tfvars'
                    terraform show $plan
                    """
