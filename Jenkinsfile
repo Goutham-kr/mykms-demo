@@ -43,7 +43,7 @@ pipeline {
           steps {
                 sh """
                    terraform init -input=false
-                   terraform workspace select master
+                   terraform workspace select default
                    terraform plan -input=false -out ${plan} --var-file='/var/lib/jenkins/master.tfvars'
                    terraform show $plan
                    """
